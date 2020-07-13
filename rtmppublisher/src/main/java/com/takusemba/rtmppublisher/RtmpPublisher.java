@@ -30,6 +30,7 @@ public class RtmpPublisher implements Publisher, SurfaceTexture.OnFrameAvailable
     private int videoBitrate;
     private String path;
     private boolean isPause =true;
+    private int frameRate;
 
     RtmpPublisher(AppCompatActivity activity,
                   GLSurfaceView glView,
@@ -39,6 +40,7 @@ public class RtmpPublisher implements Publisher, SurfaceTexture.OnFrameAvailable
                   int height,
                   int audioBitrate,
                   int videoBitrate,
+                  int frameRate,
                   CameraMode mode,
                   PublisherListener listener) {
 
@@ -51,10 +53,10 @@ public class RtmpPublisher implements Publisher, SurfaceTexture.OnFrameAvailable
         this.audioBitrate = audioBitrate;
         this.videoBitrate = videoBitrate;
         this.path = path;
+        this.frameRate = frameRate;
         this.camera = new CameraClient(activity, mode);
-        this.streamer = new Streamer();
+        this.streamer = new Streamer(frameRate);
         this.streamer.setMuxerListener(listener);
-
         glView.setEGLContextClientVersion(2);
         renderer = new CameraSurfaceRenderer();
         renderer.addOnRendererStateChangedLister(streamer.getVideoHandlerListener());
@@ -86,7 +88,7 @@ public class RtmpPublisher implements Publisher, SurfaceTexture.OnFrameAvailable
                             public void run() {
                                 // back to main thread
 
-                                streamer.startStreaming(context, width, height, audioBitrate, videoBitrate);
+                                streamer.startStreaming(context, width, height, audioBitrate, videoBitrate,frameRate);
                             }
                         });
                     }
@@ -125,8 +127,8 @@ public class RtmpPublisher implements Publisher, SurfaceTexture.OnFrameAvailable
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-    public void onStop(LifecycleOwner owner) {
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onDestroy(LifecycleOwner owner) {
         Log.e("huang","onStop");
         if(!isPause) {
             if (camera != null) {

@@ -2,6 +2,7 @@ package com.takusemba.rtmppublisher;
 
 import android.graphics.SurfaceTexture;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import com.takusemba.rtmppublisher.gles.FullFrameRect;
 import com.takusemba.rtmppublisher.gles.Texture2dProgram;
@@ -53,6 +54,7 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
     void setCameraPreviewSize(int width, int height) {
         inComingWidth = width;
         inComingHeight = height;
+        Log.e("huang","inComingWidth"+inComingWidth+"inComingHeight"+inComingHeight);
         isSizeChanged = true;
     }
 
@@ -89,6 +91,7 @@ class CameraSurfaceRenderer implements GLSurfaceView.Renderer {
         }
 
         if (isSizeChanged) {
+
             fullScreen.getProgram().setTexSize(inComingWidth, inComingHeight);
             isSizeChanged = false;
         }

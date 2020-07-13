@@ -44,6 +44,7 @@ public class LocalMuxer {
     public static final int VIDEO = 1;
     //音频类型
     public static final int AUDIO = 2;
+    public final String TAG = "LocalMuxer";
 
 
     @IntDef({VIDEO, AUDIO})
@@ -57,7 +58,7 @@ public class LocalMuxer {
   public boolean start(String path){
          isUse = !TextUtils.isEmpty(path);
         if(isUse) {
-            Log.e("huang","LocalMuxer start");
+            Log.e(TAG,"LocalMuxer start");
             mVideoTrackReady = false;
             mAudioTrackReady = false;
             mStart = false;
@@ -84,13 +85,13 @@ public class LocalMuxer {
                //混合器未开启
                synchronized (lock) {
                    try {
-                       Log.d("LocalMuxer", "=====媒体混合器等待开启...");
+                       Log.d(TAG, "=====媒体混合器等待开启...");
                        lock.wait();
                    } catch (InterruptedException e) {
                        e.printStackTrace();
                    }
                }
-               while (loop) {
+               while (loop && !workThread.isInterrupted()) {
                    try {
                        MuxerData data = muxerDatas.take();
                        int track = -1;
@@ -99,13 +100,11 @@ public class LocalMuxer {
                        } else if(data.track == AUDIO){
                            track = audioTrackIndex;
                        }
-                       Log.d("LocalMuxer", "====track: "+track+"    写入混合数据大小 " + data.bufferInfo.size);
+                       Log.d(TAG, "====track: "+track+"    写入混合数据大小 " + data.bufferInfo.size);
                        //添加数据
 
                        muxer.writeSampleData(track, data.buffer, data.bufferInfo);
                    } catch (Exception e) {
-                       Log.e("LocalMuxer", "====写入混合数据失败!" + e.toString());
-                       e.printStackTrace();
                    }
                }
                muxerDatas.clear();
@@ -174,9 +173,10 @@ public class LocalMuxer {
      * @param buffer
      * @param bufferInfo
      */
-    public void putData(@MuxerType int track, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo){
+    public synchronized void putData(@MuxerType int track, ByteBuffer buffer, MediaCodec.BufferInfo bufferInfo){
         if(isUse && mStart) {
             try {
+               // Log.e("huang","putData");
                 bufferInfo.presentationTimeUs = System.nanoTime() / 1000;
                 muxerDatas.put(new MuxerData(track,buffer,bufferInfo));
             } catch (InterruptedException e) {
@@ -186,12 +186,16 @@ public class LocalMuxer {
     }
 
     private void stopMediaMuxer() {
-        if (isUse && mStart) {
+        if (isUse) {
+            Log.e(TAG,"stopMediaMuxer");
             try {
                 muxer.stop();
                 muxer.release();
-                Log.d("LocalMuxer", "====停止媒体混合器=====");
+                Log.d(TAG, "====停止媒体混合器=====");
             }catch (Exception e){
+                if(e.getMessage() != null) {
+                    Log.e(TAG, "本地保存视频失败了"+e.getMessage());
+                }
                 e.printStackTrace();
             }
         }
@@ -207,7 +211,9 @@ public class LocalMuxer {
 
         if(isUse && mStart) {
             loop  = false;
-            Log.e("huang","release");
+            mStart = false;
+            workThread.interrupt();
+            Log.e(TAG,"release");
             if(listener != null){
                 uiHandler.post(new Runnable() {
                     @Override

@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.david.rs.requestPermissionStick
+import com.takusemba.rtmppublisher.CameraMode
 import com.takusemba.rtmppublisher.Publisher
 import com.takusemba.rtmppublisher.PublisherListener
 
@@ -52,15 +53,17 @@ class MainActivity : AppCompatActivity(), PublisherListener {
                     .apply { setGravity(Gravity.CENTER, 0, 0) }
                     .run { show() }
         } else {
+            //adb pull /storage/emulated/0/1.mp4 D:/1
             publisher = Publisher.Builder(this)
                     .setGlView(glView)
                 .setPath( Environment.getExternalStorageDirectory()
                         .toString() + "/1.mp4")
-               // .setUrl(url)
-                    .setSize(Publisher.Builder.DEFAULT_WIDTH, Publisher.Builder.DEFAULT_HEIGHT)
+                    .setUrl(url)
+                    .setSize(Publisher.Builder.DEFAULT_HEIGHT,Publisher.Builder.DEFAULT_WIDTH )
                     .setAudioBitrate(Publisher.Builder.DEFAULT_AUDIO_BITRATE)
                     .setVideoBitrate(Publisher.Builder.DEFAULT_VIDEO_BITRATE)
-                    .setCameraMode(Publisher.Builder.DEFAULT_MODE)
+                    .setCameraMode(CameraMode.FRONT)
+                    .setFrameRate(30)
                     .setListener(this)
                     .build()
 

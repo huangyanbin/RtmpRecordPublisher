@@ -5,6 +5,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
 
 import net.butterflytv.rtmp_client.RTMPMuxer;
 
@@ -118,9 +119,11 @@ class Muxer {
     }
 
     void sendVideo(byte[] data, int length, int timestamp) {
+
         if(TextUtils.isEmpty(url)){
             return;
         }
+      //  Log.e("huang","sendVideo");
         Message message = handler.obtainMessage(MSG_SEND_VIDEO, data);
         message.arg1 = length;
         message.arg2 = timestamp;
@@ -131,6 +134,7 @@ class Muxer {
         if(TextUtils.isEmpty(url)){
             return;
         }
+       // Log.e("huang","sendAudio");
         Message message = handler.obtainMessage(MSG_SEND_AUDIO, data);
         message.arg1 = length;
         message.arg2 = timestamp;

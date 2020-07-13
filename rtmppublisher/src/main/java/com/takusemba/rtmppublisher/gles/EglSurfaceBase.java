@@ -60,8 +60,9 @@ public class EglSurfaceBase {
 
         // Don't cache width/height here, because the size of the underlying surface can change
         // out from under us (see e.g. HardwareScalerActivity).
-        //mWidth = mEglCore.querySurface(mEGLSurface, EGL14.EGL_WIDTH);
-        //mHeight = mEglCore.querySurface(mEGLSurface, EGL14.EGL_HEIGHT);
+        mWidth = mEglCore.querySurface(mEGLSurface, EGL14.EGL_WIDTH);
+        mHeight = mEglCore.querySurface(mEGLSurface, EGL14.EGL_HEIGHT);
+        Log.e("huang","mWidth:"+mWidth+"mHeight"+mHeight);
     }
 
     /**

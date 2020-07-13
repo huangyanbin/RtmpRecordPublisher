@@ -6,6 +6,7 @@ import android.media.MediaCodec;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 
@@ -37,7 +38,7 @@ class AudioRecorder {
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 
         audioRecord.startRecording();
-
+        Log.e("huang","AudioRecorder start");
         HandlerThread handlerThread = new HandlerThread("AudioRecorder-record");
         handlerThread.start();
         Handler handler = new Handler(handlerThread.getLooper());
@@ -46,15 +47,18 @@ class AudioRecorder {
             public void run() {
                 int bufferReadResult;
                 byte[] data = new byte[bufferSize];
+                //Log.e("huang","AudioRecorder run");
                 // keep running... so use a different thread.
-                while (isRecording() && (bufferReadResult = audioRecord.read(data, 0, bufferSize)) > 0) {
-                    listener.onAudioRecorded(data, bufferReadResult);
+                while (isRecording()&& (bufferReadResult = audioRecord.read(data, 0, bufferSize)) > 0) {
+                    //Log.e("huang", "AudioRecorder run loop");
+                  listener.onAudioRecorded(data, bufferReadResult);
                 }
             }
         });
     }
 
     void stop() {
+        Log.e("huang","AudioRecorder stop");
         if (isRecording()) {
             audioRecord.stop();
             audioRecord.release();

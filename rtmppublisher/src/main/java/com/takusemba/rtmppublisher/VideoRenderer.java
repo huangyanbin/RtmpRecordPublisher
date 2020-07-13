@@ -1,6 +1,7 @@
 package com.takusemba.rtmppublisher;
 
 import android.opengl.EGLContext;
+import android.util.Log;
 import android.view.Surface;
 
 import com.takusemba.rtmppublisher.gles.EglCore;
@@ -23,6 +24,7 @@ class VideoRenderer {
 
     void draw(final int textureId, final float[] transform, final long timestampNanos) {
         fullScreen.drawFrame(textureId, transform);
+
         inputWindowSurface.setPresentationTime(timestampNanos);
         inputWindowSurface.swapBuffers();
     }

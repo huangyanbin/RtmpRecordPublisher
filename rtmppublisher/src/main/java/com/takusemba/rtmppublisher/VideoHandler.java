@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 class VideoHandler implements CameraSurfaceRenderer.OnRendererStateChangedListener {
 
-    private static final int FRAME_RATE = 30;
+
 
     /**
      * note that to use {@link VideoEncoder} and {@link VideoRenderer} from handler.
@@ -20,6 +20,7 @@ class VideoHandler implements CameraSurfaceRenderer.OnRendererStateChangedListen
     private Handler handler;
     private VideoEncoder videoEncoder;
     private VideoRenderer videoRenderer;
+    private int frameRate;
 
     interface OnVideoEncoderStateListener {
         void onPrepareVideo(MediaFormat format);
@@ -32,7 +33,8 @@ class VideoHandler implements CameraSurfaceRenderer.OnRendererStateChangedListen
         videoEncoder.setOnVideoEncoderStateListener(listener);
     }
 
-    VideoHandler() {
+    VideoHandler(int frameRate) {
+        this.frameRate = frameRate;
         this.videoRenderer = new VideoRenderer();
         this.videoEncoder = new VideoEncoder();
         HandlerThread handlerThread = new HandlerThread("VideoHandler");
@@ -40,13 +42,13 @@ class VideoHandler implements CameraSurfaceRenderer.OnRendererStateChangedListen
         handler = new Handler(handlerThread.getLooper());
     }
 
-    void start(final int width, final int height, final int bitRate,
+    void start(final int width, final int height, final int bitRate,final int frameRate,
                final EGLContext sharedEglContext, final long startStreamingAt) {
         handler.post(new Runnable() {
             @Override
             public void run() {
                 try {
-                    videoEncoder.prepare(width, height, bitRate, FRAME_RATE, startStreamingAt);
+                    videoEncoder.prepare(width, height, bitRate, frameRate, startStreamingAt);
                     videoEncoder.start();
                     videoRenderer.initialize(sharedEglContext, videoEncoder.getInputSurface());
                 } catch (IOException ioe) {
@@ -92,6 +94,6 @@ class VideoHandler implements CameraSurfaceRenderer.OnRendererStateChangedListen
     }
 
     private long getFrameInterval() {
-        return 1000 / FRAME_RATE;
+        return 1000 / frameRate;
     }
 }

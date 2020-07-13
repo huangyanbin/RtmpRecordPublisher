@@ -7,6 +7,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -54,6 +55,7 @@ class AudioEncoder implements Encoder {
 
     @Override
     public void start() {
+        Log.e("huang","AudioEncoder start");
         encoder.start();
         inputBuffers = encoder.getInputBuffers();
         outputBuffers = encoder.getOutputBuffers();
@@ -63,6 +65,7 @@ class AudioEncoder implements Encoder {
 
     @Override
     public void stop() {
+        Log.e("huang","AudioEncoder stop");
         if (isEncoding) {
             int inputBufferId = encoder.dequeueInputBuffer(TIMEOUT_USEC);
             encoder.queueInputBuffer(inputBufferId, 0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
@@ -79,6 +82,7 @@ class AudioEncoder implements Encoder {
      * the data will be drained from {@link AudioEncoder#drain()}
      */
     void enqueueData(byte[] data, int length) {
+        //Log.e("huang","AudioEncoder enqueueData");
         if (encoder == null) return;
         int bufferRemaining;
         long timestamp = System.currentTimeMillis() - startedEncodingAt;
@@ -113,6 +117,7 @@ class AudioEncoder implements Encoder {
                 while (isEncoding) {
                     int outputBufferId = encoder.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
                     if (outputBufferId >= 0) {
+                        //Log.e("huang","AudioEncoder isEncoding");
                         ByteBuffer encodedData = outputBuffers[outputBufferId];
                         if (encodedData == null) {
                             continue;
@@ -128,9 +133,11 @@ class AudioEncoder implements Encoder {
 
                         long currentTime = System.currentTimeMillis();
                         int timestamp = (int) (currentTime - startedEncodingAt);
-                        bufferInfo.presentationTimeUs = timestamp*1000;
-                        listener.onAudioDataMediaEncoded(encodedData,bufferInfo);
+                      //  bufferInfo.presentationTimeUs = timestamp*1000;
+                       // Log.e("huang","sendAudio first");
+                       // bufferInfo.flags = MediaCodec.BUFFER_FLAG_SYNC_FRAME;
                         listener.onAudioDataEncoded(data, bufferInfo.size, timestamp);
+                        listener.onAudioDataMediaEncoded(encodedData,bufferInfo);
                         encoder.releaseOutputBuffer(outputBufferId, false);
                     } else if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                         // format should not be changed
@@ -147,6 +154,7 @@ class AudioEncoder implements Encoder {
     }
 
     private void release() {
+        Log.e("huang","AudioEncoder release");
         if (encoder != null) {
             isEncoding = false;
             encoder.stop();

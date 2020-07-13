@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 class AudioHandler implements AudioRecorder.OnAudioRecorderStateChangedListener {
 
-    private static final int SAMPLE_RATE = 44100;
+    private static final int SAMPLE_RATE = 8000;
 
     /**
      * note that to use {@link AudioEncoder} and {@link AudioRecorder} from handler

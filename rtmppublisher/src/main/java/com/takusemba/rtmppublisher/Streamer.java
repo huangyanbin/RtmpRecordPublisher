@@ -16,8 +16,8 @@ class Streamer
     private Muxer muxer = new Muxer();
     private LocalMuxer localMuxer = new LocalMuxer();
 
-     Streamer() {
-        this.videoHandler = new VideoHandler();
+     Streamer( int frameRate) {
+        this.videoHandler = new VideoHandler(frameRate);
         this.audioHandler = new AudioHandler();
     }
 
@@ -27,19 +27,20 @@ class Streamer
     }
 
     void startStreaming(EGLContext context, int width, int height, int audioBitrate,
-                        int videoBitrate) {
+                        int videoBitrate,final int frameRate) {
 
         //if (muxer.isConnected() || localMuxer.isConnected()) {
-
+            Log.e("huang","startStreaming");
             long startStreamingAt = System.currentTimeMillis();
             videoHandler.setOnVideoEncoderStateListener(this);
             audioHandler.setOnAudioEncoderStateListener(this);
-            videoHandler.start(width, height, videoBitrate, context, startStreamingAt);
+            videoHandler.start(width, height, videoBitrate,frameRate, context, startStreamingAt);
             audioHandler.start(audioBitrate, startStreamingAt);
         //}
     }
 
     void stopStreaming() {
+        Log.e("huang","stopStreaming");
         videoHandler.stop();
         audioHandler.stop();
         muxer.close();

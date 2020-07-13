@@ -91,6 +91,11 @@ class CameraClient {
                 isDesiredSizeFound = true;
             }
         }
+        if(!isDesiredSizeFound && params.getSupportedPreviewSizes().size() >0){
+            Camera.Size size = params.getSupportedPreviewSizes().get(0);
+            params.setPreviewSize(size.width, size.height);
+            isDesiredSizeFound = true;
+        }
 
         if (!isDesiredSizeFound) {
             Camera.Size ppsfv = params.getPreferredPreviewSizeForVideo();
@@ -99,7 +104,7 @@ class CameraClient {
             }
         }
 
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        //params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         params.setRecordingHint(true);
 
         camera.setParameters(params);
@@ -110,11 +115,11 @@ class CameraClient {
         Display display =
                 ((WindowManager) context.getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
 
-        if (display.getRotation() == Surface.ROTATION_0) {
-            camera.setDisplayOrientation(90);
-        } else if (display.getRotation() == Surface.ROTATION_270) {
-            camera.setDisplayOrientation(180);
-        }
+//        if (display.getRotation() == Surface.ROTATION_0) {
+//            camera.setDisplayOrientation(90);
+//        } else if (display.getRotation() == Surface.ROTATION_270) {
+//            camera.setDisplayOrientation(180);
+//        }
     }
 
     private void setRotation(Camera.CameraInfo info) {

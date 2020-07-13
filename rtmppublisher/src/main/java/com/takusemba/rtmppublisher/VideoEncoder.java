@@ -5,6 +5,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.view.Surface;
 
 import java.io.IOException;
@@ -47,7 +48,7 @@ class VideoEncoder implements Encoder {
             throws IOException {
         this.startStreamingAt = startStreamingAt;
         this.bufferInfo = new MediaCodec.BufferInfo();
-        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE, width, height);
+        MediaFormat format = MediaFormat.createVideoFormat(MIME_TYPE,  width,height);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT,
                 MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
@@ -98,6 +99,7 @@ class VideoEncoder implements Encoder {
                         byte[] config = new byte[sps.limit() + pps.limit()];
                         sps.get(config, 0, sps.limit());
                         pps.get(config, sps.limit(), pps.limit());
+                        listener.onVideoDataEncoded(config, config.length, 0);
                         listener.onPrepareVideo(encoder.getOutputFormat());
                     } else {
                         if (inputBufferId > 0) {
@@ -120,9 +122,11 @@ class VideoEncoder implements Encoder {
                                 byte[] data = new byte[bufferInfo.size];
                                 encodedData.get(data, 0, bufferInfo.size);
                                 encodedData.position(bufferInfo.offset);
+                                bufferInfo.flags = MediaCodec.BUFFER_FLAG_SYNC_FRAME;
                                 bufferInfo.presentationTimeUs = timestamp*1000;
-                                listener.onVideoDataMediaEncoded(encodedData,bufferInfo);
+                                Log.e("huang","presentationTimeUs"+ bufferInfo.presentationTimeUs);
                                 listener.onVideoDataEncoded(data, bufferInfo.size, timestamp);
+                                listener.onVideoDataMediaEncoded(encodedData,bufferInfo);
                                 lastFrameEncodedAt = currentTime;
                             }
                             encoder.releaseOutputBuffer(inputBufferId, false);

@@ -2,6 +2,7 @@ package com.takusemba.rtmppublisher;
 
 import android.opengl.GLSurfaceView;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -35,10 +36,11 @@ public interface Publisher {
          * Default Values
          */
         public static final int DEFAULT_WIDTH = 720;
-        public static final int DEFAULT_HEIGHT = 1080;
+        public static final int DEFAULT_HEIGHT = 1280;
         public static final int DEFAULT_AUDIO_BITRATE = 12800;
-        public static final int DEFAULT_VIDEO_BITRATE = 800000;
-        public static final CameraMode DEFAULT_MODE = CameraMode.BACK;
+        public static final int DEFAULT_VIDEO_BITRATE = 3*1280*720;
+        public static final CameraMode DEFAULT_MODE = CameraMode.FRONT;
+        public static final int FRAME_RATE = 30;
 
         /**
          * Required Parameters
@@ -57,6 +59,7 @@ public interface Publisher {
         private int videoBitrate;
         private String path;
         private PublisherListener listener;
+        private int frameRate;
 
 
         /**
@@ -88,6 +91,7 @@ public interface Publisher {
          *设置本地录制视频路径
          */
         public Builder setPath(@NonNull String localPath) {
+            Log.e("huang","localPath"+localPath);
             this.path = localPath;
             return this;
         }
@@ -98,6 +102,14 @@ public interface Publisher {
         public Builder setSize(int width, int height) {
             this.width = width;
             this.height = height;
+            return this;
+        }
+
+        /**
+         * 设置视频帧率
+         */
+        public Builder setFrameRate(int frameRate) {
+            this.frameRate = frameRate;
             return this;
         }
 
@@ -162,10 +174,13 @@ public interface Publisher {
             if (videoBitrate <= 0) {
                 videoBitrate = DEFAULT_VIDEO_BITRATE;
             }
+            if(frameRate <= 0){
+                frameRate = FRAME_RATE;
+            }
             if (mode == null) {
                 mode = DEFAULT_MODE;
             }
-            return new RtmpPublisher(activity, glView, url, path,width, height, audioBitrate, videoBitrate, mode, listener);
+            return new RtmpPublisher(activity, glView, url, path,width, height, audioBitrate, videoBitrate,frameRate, mode, listener);
         }
 
     }
